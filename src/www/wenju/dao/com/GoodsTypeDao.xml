@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="www.wenju.dao.com.GoodsTypeDao">
+	<!--SQL片段 -->
+	<sql id="selectGoodsTypeListJudge">
+		GTid != '-1'
+		<if test="gt_id != null and gt_id != ''">
+			and GTid = #{gt_id}
+		</if>
+		<if test="gt_name != null and gt_name != ''">
+			and GTname = #{gt_name}
+		</if>
+		<if test="gt_about != null and gt_about != ''">
+			and GTabout like '%${gt_about}%'
+		</if>
+	</sql>
+	<!-- <sql id="createGoodsTypeList"> </sql> -->
+
+	<!-- 文具类型参数 -->
+	<resultMap id="goodstypeMap"
+		type="www.wenju.po.com.GoodsType">
+		<result column="GTid" jdbcType="VARCHAR" property="gt_id" />
+		<result column="GTname" jdbcType="VARCHAR" property="gt_name" />
+		<result column="GTabout" jdbcType="VARCHAR" property="gt_about" />
+	</resultMap>
+
+	<!-- 添加文具类型 -->
+	<insert id="createGoodsType" parameterType="GoodsType">
+		<if test="gt_id != null and gt_id != '' and gt_id.length() &lt;= 12 ">
+			<if test="gt_name != null and gt_name != '' and gt_name.length() &lt;= 25">
+				<if test="gt_about != null and gt_about != '' and gt_about.length() &lt;= 1000">
+					insert into GoodsType(GTid,GTname,GTabout)
+					values(#{gt_id},#{gt_name},#{gt_about})
+				</if>
+			</if>
+		</if>
+	</insert>
+
+	<!-- 删除文具类型 -->
+	<delete id="deleteGoodsType" parameterType="java.lang.String">
+		delete from GoodsType
+		where GTid = #{gt_id}
+	</delete>
+
+	<!-- 更新文具类型，1：存在与不存在；2：存在 -->
+	<update id="updateGoodsType" parameterType="GoodsType">
+		update GoodsType
+		<set>
+			<if
+				test="gt_name != null and gt_name.length() &lt;= 25 and gt_name != ''">
+				<if
+					test="gt_about != null and gt_about.length() &lt;= 1000 and gt_about != ''">
+					GTname=#{gt_name},GTabout=#{gt_about} where GTid=#{gt_id}
+				</if>
+			</if>
+			<if test="gt_name == null or gt_about == null or gt_name.length() &gt;= 25 or gt_about.length() &gt;= 1000 or gt_name == '' or gt_about == ''">
+				GTname='-1',GTabout='-1'
+				where GTid='-1'
+			</if>
+		</set>
+	</update>
+ 
+	<!-- 根据id获取信息 --> 
+	<select id="selectGoodsTypeById"
+		parameterType="java.lang.String" resultMap="goodstypeMap">
+		select * from GoodsType
+		where GTid = #{gt_id}
+	</select>
+
+	<!-- 查询文具类型总数 -->
+	<select id="selectGoodsTypeListCount"
+		parameterType="www.wenju.po.com.GoodsType"
+		resultType="java.lang.Integer">
+		select count(*) from GoodsType where
+		<include refid="selectGoodsTypeListJudge" />
+	</select>
+
+	<!-- 查询文具类型信息 -->
+	<select id="selectGoodsTypeList"
+		parameterType="www.wenju.po.com.GoodsType" resultMap="goodstypeMap">
+		<!-- 执行分页查询 -->
+		<if test="start !=null and rows != null">
+			select top ${rows} * from GoodsType where
+			GTid not in (select top
+			(${rows} * (${start})) GTid from GoodsType
+			)and
+			<include refid="selectGoodsTypeListJudge" />
+		</if>
+	</select>
+
+	<!-- 选择查询 -->
+	<!-- <select id="selectQueryGoodsTypeList" parameterType="GoodsType" resultType="java.lang.Integer"> 
+		select * from GoodsType <include refid="selectCustomerListWhere" /> </select> -->
+
+	<!-- 查询文具类型Id -->
+	<select id="findGoodsTypeToId" resultMap="goodstypeMap">
+		select GTid from
+		GoodsType
+	</select>
+
+	<!-- 查询文具类型Name -->
+	<select id="findGoodsTypeToName" resultMap="goodstypeMap">
+		select GTname from
+		GoodsType
+	</select>
+</mapper>

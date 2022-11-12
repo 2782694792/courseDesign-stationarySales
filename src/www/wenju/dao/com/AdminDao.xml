@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="www.wenju.dao.com.AdminDao">
+	<!-- 查询用户信息方法
+		resultMap：适合使用返回值是自定义实体类的情况
+		resultType：适合使用返回值得数据类型是非自定义的，即jdk的提供的类型
+	 -->
+	<resultMap id="adminloginMap" type="www.wenju.po.com.Administrator">
+    	<result column="Aaccount" jdbcType="VARCHAR" property="admin_account" />
+    	<result column="Apassword" jdbcType="VARCHAR" property="admin_password" />
+    	<result column="Ano" jdbcType="VARCHAR" property="admin_id" />
+    	<result column="Aname" jdbcType="VARCHAR" property="admin_name" />
+  	</resultMap>
+	 
+	<select id="findAdminnews" parameterType="java.lang.String"
+		resultMap="adminloginMap">
+		select * from Administrator
+		where Aaccount = #{admin_account}
+		and Apassword = #{admin_password}
+	</select>
+</mapper>

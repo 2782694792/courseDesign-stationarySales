@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+    http://www.springframework.org/schema/mvc 
+    http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+    http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context-4.3.xsd
+    http://www.springframework.org/schema/aop 
+    http://www.springframework.org/schema/aop/spring-aop-4.3.xsd 
+    http://www.springframework.org/schema/tx 
+    http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<!-- 配置Controller扫描 -->
+	<context:component-scan
+		base-package="www.wenju.controller.com" />
+
+	<!-- 加载屬性文件 controller需要的配置信息 -->
+	<!-- 资源文件中的内容对应的是数据字典中的字段值 -->
+	<!-- <context:property-placeholder ignore-unresolvable="true" 
+		location="classpath:resource.properties" /> -->
+
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:*.properties" />
+
+	<!-- 配置注解驱动:处理器映射器和适配器 -->
+	<mvc:annotation-driven />
+
+	<!-- 配置静态资源的访问映射，对静态资源放行，此配置中的文件，将不被前端控制器拦截 -->
+	<mvc:resources location="/css/" mapping="/css/**" />
+	<mvc:resources location="/js/" mapping="/js/**" />
+	<mvc:resources location="/fonts/" mapping="/fonts/**" />
+	<mvc:resources location="/images/" mapping="/images/**" />
+
+	<!-- 另外一种方式 解决静态资源无法被springMVC处理的问题 -->
+	<!-- <mvc:default-servlet-handler /> -->
+
+	<!-- 配置视图解析器 -->
+	<bean id="jspViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<!-- 前缀 -->
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<!-- 后缀 -->
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<!-- 配置拦截器 -->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<!-- /aaa/** 这个是拦截路径以/aaa开头的所有的URL -->
+			<!-- 配置登录拦截器类路径 -->
+			<bean class="www.wenju.interceptor.com.AdminLoginInterceptor" />
+			<!-- 配置不拦截器URL路径 -->
+			<!-- <mvc:exclude-mapping path="/fore/**"/> -->
+		</mvc:interceptor>
+	</mvc:interceptors>
+</beans>

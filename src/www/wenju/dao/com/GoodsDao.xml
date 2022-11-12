@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="www.wenju.dao.com.GoodsDao">
+
+	<sql id="selectGoodsListJudge">
+		Gid != '-1'
+		<if test="g_gtid != null">
+			and Ggtid = #{g_gtid}    
+		</if>
+		<if test="g_name != null">
+			and Gname like concat('%',#{g_name},'%') 
+		</if>
+		<if
+			test="minprice != null and maxprice != null">
+			and ((Gprice in (${minprice},${maxprice})) 
+			or
+			(Gvipprice in (${minprice},${maxprice})))
+		</if>
+		<if
+			test="minprice != null and (maxprice == null or maxprice &lt; minprice)">
+			or (Gprice &gt;= ${minprice}) or (Gvipprice &gt;= ${minprice})
+		</if>
+		<if
+			test="(minprice == null or minprice &gt; maxprice) and maxprice != null">
+			and (Gprice &lt;= ${maxprice} or Gvipprice &lt;= ${maxprice})
+		</if>
+		<if test="g_specification != null">
+			and Gspecification like concat('%',#{g_specification},'%')  
+		</if>
+		<if test="g_manufacturers != null">
+			and Gmanufacturers = #{g_manufacturers}
+		</if>
+		<if test="g_id != null">
+			and Gid = #{g_id}  
+		</if>
+		<if test="g_sno != null"> 
+			and GSno = #{g_sno}
+		</if> 
+	</sql> 
+
+
+	<resultMap id="goodsMap" type="www.wenju.po.com.Goods">
+		<result column="Gid" jdbcType="VARCHAR" property="g_id" />
+		<result column="Ggtid" jdbcType="VARCHAR" property="g_gtid" />
+		<result column="Gname" jdbcType="VARCHAR" property="g_name" />
+		<result column="Gprice" jdbcType="FLOAT" property="g_price" /> 
+		<result column="Gvipprice" jdbcType="FLOAT"
+			property="g_vipprice" />
+		<result column="Gproducttime" jdbcType="DATE"
+			property="g_producttime" />
+		<result column="Gspecification" jdbcType="VARCHAR"
+			property="g_specification" />
+		<result column="Gmanufacturers" jdbcType="VARCHAR"
+			property="g_manufacturers" /> 
+		<result column="Gquantity" jdbcType="INTEGER"
+			property="g_quantity" />
+		<result column="GSno" jdbcType="VARCHAR" property="g_sno" />
+		<result column="Gpicture" jdbcType="VARCHAR"
+			property="g_picture" />
+	</resultMap>
+
+	<!-- 添加 -->
+	<insert id="createGoods" parameterType="Goods">
+		<if test="g_id != null">
+			<if test="g_gtid != null">
+				<if test="g_name != null">
+					<if test="g_price != null">
+						<if test="g_vipprice != null">
+							<if test="g_producttime != null">
+								<if test="g_specification != null">
+									<if test="g_manufacturers != null">
+										<if test="g_quantity != null">
+											<if test="g_sno != null">
+												<if test="g_picture != null">
+													insert into
+													Goods(Gid,Ggtid,Gname,Gprice,Gvipprice,Gproducttime,Gspecification,Gmanufacturers,Gquantity,GSno,Gpicture)
+													values(#{g_id},#{g_gtid},#{g_name},#{g_price},#{g_vipprice},#{g_producttime},#{g_specification},#{g_manufacturers},#{g_quantity},#{g_sno},#{g_picture})
+												</if>
+											</if>
+										</if>
+									</if>
+								</if>
+							</if>
+						</if>
+					</if>
+				</if>
+			</if>
+		</if>
+	</insert>
+
+	<!-- 删除 -->
+	<delete id="deleteGoods" parameterType="java.lang.String">
+		delete from Goods
+		where
+		Gid = #{g_id}
+	</delete>
+
+	<!-- 更新 -->
+	<update id="updateGoods" parameterType="Goods">
+		update Goods
+		<set>
+			<if test="g_gtid != null and g_gtid != ''">Ggtid=#{g_gtid},
+			</if>
+			<if test="g_name != null and g_name != '' and g_name.length() &lt;= 40">Gname=#{g_name},
+			</if>
+			<if test="g_price != null and g_price &gt;= 0">Gprice=#{g_price},
+			</if>
+			<if test="g_vipprice != null and g_vipprice &gt;= 0">Gvipprice=#{g_vipprice},
+			</if>
+			<if test="g_producttime != null and g_producttime != ''">Gproducttime=#{g_producttime},
+			</if>
+			<if test="g_specification != null and g_specification != ''">Gspecification=#{g_specification},
+			</if>
+			<if test="g_manufacturers != null and g_manufacturers != ''">Gmanufacturers=#{g_manufacturers},
+			</if>
+			<if test="g_quantity != null and g_quantity &gt;= 0">Gquantity=#{g_quantity},
+			</if>
+			<if test="g_sno != null and g_sno != ''">GSno=#{g_sno},</if>
+			<if test="g_picture != null and g_picture != ''">Gpicture=#{g_picture},
+			</if>
+		</set>
+		where Gid=#{g_id}
+	</update>
+
+	<!-- id查询 -->
+	<select id="selectGoodsById" parameterType="java.lang.String"
+		resultMap="goodsMap">
+		select * from Goods
+		where Gid = #{g_id}
+	</select>
+
+	<!-- 查询总数 -->
+	<select id="selectGoodsListCount"
+		parameterType="www.wenju.po.com.Goods" resultType="java.lang.Integer">
+		select count(*) from Goods where
+		<include refid="selectGoodsListJudge" />
+	</select>
+
+	<!-- 查询信息 -->
+	<select id="selectGoodsList"
+		parameterType="www.wenju.po.com.Goods" resultMap="goodsMap">
+		<!-- 执行分页查询 -->
+		<if test="start !=null and rows != null">
+			select top ${rows} * from Goods where
+			Gid not in (select top
+			(${rows} *
+			${start}) Gid from Goods
+			)and
+			<include refid="selectGoodsListJudge" />
+		</if>
+	</select>
+
+	<!-- 查询文具Id -->
+	<select id="findGoodsToGid" resultMap="goodsMap">
+		select Gid from
+		Goods
+	</select>
+
+	<!-- 查询文具类型ID -->
+	<select id="findGoodsToGgtid" resultMap="goodsMap">
+		select Ggtid = GTid from
+		GoodsType
+	</select>
+
+	<!-- 查询文具制造商 -->
+	<select id="findGoodsToGmanufacturers" resultMap="goodsMap">
+		select
+		Gmanufacturers from
+		Goods group by Gmanufacturers
+	</select>
+
+	<!-- 查询服务员编号 -->
+	<select id="findGoodsToGSno" resultMap="goodsMap">
+		select
+		GSno = Sno from
+		Salesman
+	</select>
+
+</mapper>
+
+
